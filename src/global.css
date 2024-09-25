@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  @apply leading-[normal] m-0;
+}
+*,
+::before,
+::after {
+  border-width: 0;
+}
+
+
+body {
+  overflow-y: scroll; /* Ensure that the page is scrollable */
+}
+
+::-webkit-scrollbar {
+  width: 0px; /* Hide the scrollbar for WebKit browsers */
+  background: transparent; /* Make sure the background is transparent */
+}
+
+body {
+  -ms-overflow-style: none;  /* Hide scroll bar for Internet Explorer 10+ */
+  scrollbar-width: none;  /* Hide scroll bar for Firefox */
+}
