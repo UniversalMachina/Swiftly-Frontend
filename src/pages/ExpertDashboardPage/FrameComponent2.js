@@ -199,74 +199,77 @@ const Dashboard = () => {
       <div className="top-row w-full">
         <div className="card bg-white rounded-lg shadow-md p-6 transition duration-300 hover:shadow-lg">
           <h2 className="text-xl font-semibold text-indigo-600 mb-4">Incoming Cases</h2>
-          <table className="w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-3 text-left">Time</th>
-                <th className="p-3 text-left">Case ID</th>
-                <th className="p-3 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cases.map((caseItem) => (
-                <React.Fragment key={caseItem.caseId}>
-                  <tr
-                    className="cursor-pointer hover:bg-gray-200"
-                    onClick={() => toggleExpandCase(caseItem.caseId)}
-                  >
-                    <td className="p-3 border-b">{caseItem.time}</td>
-                    <td className="p-3 border-b">{`Case #${caseItem.caseId}`}</td>
-                    <td className="p-3 border-b">
-                      <span className="status-badge bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-xs">
-                        {caseItem.status}
-                      </span>
-                    </td>
-                  </tr>
-                  {expandedCases[caseItem.caseId] && (
-                    <tr>
-                      <td className="p-3 border-b bg-gray-50" colSpan={3}>
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold text-indigo-600">Inquiries</h3>
-                          {caseItem.inquiries.length > 0 ? (
-                            <table className="w-full mt-4 table-auto border-collapse">
-                              <thead>
-                                <tr className="bg-gray-100">
-                                  <th className="p-3 text-left">Time</th>
-                                  <th className="p-3 text-left">Inquiry</th>
-                                  <th className="p-3 text-left">Status</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {caseItem.inquiries.map((inquiry) => (
-                                  <tr key={inquiry.inquiryId}>
-                                    <td className="p-3 border-b">{inquiry.time}</td>
-                                    <td className="p-3 border-b">{inquiry.inquiry}</td>
-                                    <td className="p-3 border-b">
-                                      <span
-                                        className={`status-badge bg-${
-                                          inquiry.status === 'Completed' ? 'green' : 'blue'
-                                        }-100 text-${
-                                          inquiry.status === 'Completed' ? 'green' : 'blue'
-                                        }-800 py-1 px-3 rounded-full text-xs`}
-                                      >
-                                        {inquiry.status}
-                                      </span>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          ) : (
-                            <p>No inquiries available.</p>
-                          )}
-                        </div>
+          {/* Scrollable area */}
+          <div className="max-h-64 overflow-y-auto">
+            <table className="w-full table-auto border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-3 text-left">Time</th>
+                  <th className="p-3 text-left">Case ID</th>
+                  <th className="p-3 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cases.map((caseItem) => (
+                  <React.Fragment key={caseItem.caseId}>
+                    <tr
+                      className="cursor-pointer hover:bg-gray-200"
+                      onClick={() => toggleExpandCase(caseItem.caseId)}
+                    >
+                      <td className="p-3 border-b">{caseItem.time}</td>
+                      <td className="p-3 border-b">{`Case #${caseItem.caseId}`}</td>
+                      <td className="p-3 border-b">
+                        <span className="status-badge bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-xs">
+                          {caseItem.status}
+                        </span>
                       </td>
                     </tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
+                    {expandedCases[caseItem.caseId] && (
+                      <tr>
+                        <td className="p-3 border-b bg-gray-50" colSpan={3}>
+                          <div className="p-4">
+                            <h3 className="text-lg font-semibold text-indigo-600">Inquiries</h3>
+                            {caseItem.inquiries.length > 0 ? (
+                              <table className="w-full mt-4 table-auto border-collapse">
+                                <thead>
+                                  <tr className="bg-gray-100">
+                                    <th className="p-3 text-left">Time</th>
+                                    <th className="p-3 text-left">Inquiry</th>
+                                    <th className="p-3 text-left">Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {caseItem.inquiries.map((inquiry) => (
+                                    <tr key={inquiry.inquiryId}>
+                                      <td className="p-3 border-b">{inquiry.time}</td>
+                                      <td className="p-3 border-b">{inquiry.inquiry}</td>
+                                      <td className="p-3 border-b">
+                                        <span
+                                          className={`status-badge bg-${
+                                            inquiry.status === 'Completed' ? 'green' : 'blue'
+                                          }-100 text-${
+                                            inquiry.status === 'Completed' ? 'green' : 'blue'
+                                          }-800 py-1 px-3 rounded-full text-xs`}
+                                        >
+                                          {inquiry.status}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            ) : (
+                              <p>No inquiries available.</p>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="utility-buttons flex justify-between mt-4">
             <button
               className="utility-button bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500"
