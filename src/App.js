@@ -107,13 +107,7 @@ function App() {
         element={!isLoggedIn ? <Main /> :<ExpertAIAvatarPage />  }
       />
 
-      {/* <Route
-        path="/client-dashboard-page"
-        element={<Navigate to="/expert-signup" />}
-      />
-      <Route path="/expert-dashboard-page" element={<ExpertDashboardPage />} />
 
-      <Route path="/expert-ai-avatar-page" element={<ExpertAIAvatarPage />} /> */}
     </Routes>
   );
 }
