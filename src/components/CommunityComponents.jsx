@@ -72,7 +72,7 @@ export const CommunityOptions = ({ active = "MultiMiner" }) => {
       </div>
 
       <div
-        className={`flex flex-row items-start justify-start py-[0px] px-[18px] pt-[400px] text-center text-[15px] text-[#1c1c1c] font-[Poppins]`}
+        className={`flex flex-row items-start justify-start py-[0px] px-[18px] pt-[500px] text-center text-[15px] text-[#1c1c1c] font-[Poppins]`}
       >
         <div className="flex flex-col items-start justify-start gap-[45px]">
           {/* Greyed-out Settings */}
