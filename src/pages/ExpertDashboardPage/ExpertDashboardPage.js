@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import FrameComponent2 from "./FrameComponent2";
+import Dashboard from "./FrameComponent2";
 import {
   CommunitiesButton,
   CommunityOptions,
@@ -10,7 +10,6 @@ import CommunityCreationModal from "../ExpertAIAvatarPage/CommunityCreationModal
 
 import { FiUpload } from "react-icons/fi";
 import ExpertAIAvatarPage from "../ExpertAIAvatarPage/ExpertAIAvatarPage";
-import Dashboard from "./FrameComponent2";
 
 const ExpertDashboardPage = () => {
   const { username, accountType } = useLogin();

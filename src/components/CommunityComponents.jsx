@@ -15,7 +15,6 @@ import { useLogin } from "../LoginContext";
 
 const communityOptions = [
   { label: "Dashboard", icon: FaUser, route: "/expert-dashboard-page" },
-  { label: "MultiMiner", icon: RiRobot2Fill, route: "/expert-ai-avatar-page" },
 ];
 
 export const CommunityOptions = ({ active = "MultiMiner" }) => {
