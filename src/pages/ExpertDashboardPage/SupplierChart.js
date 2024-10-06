@@ -1,41 +1,53 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const SupplierChart = ({ databaseSuppliers, googleMapsSuppliers }) => {
+const SupplierChart = ({ cases }) => {
+  const [databaseSuppliers, setDatabaseSuppliers] = useState(0);
+  const [googleMapsSuppliers, setGoogleMapsSuppliers] = useState(0);
   const supplierChartRef = useRef(null);
 
   useEffect(() => {
+    updateSupplierChart();
+  }, [cases]);
+
+  const updateSupplierChart = () => {
     const supplierCtx = document.getElementById('supplier-chart').getContext('2d');
+    let dbSuppliers = 0;
+    let gmSuppliers = 0;
 
-    // Destroy the previous chart instance if it exists
-    if (supplierChartRef.current) {
-      supplierChartRef.current.destroy();
-    }
-
-    supplierChartRef.current = new Chart(supplierCtx, {
-      type: 'pie',
-      data: {
-        labels: ['Database Properties', 'Google Maps Properties'],
-        datasets: [
-          {
-            data: [databaseSuppliers, googleMapsSuppliers],
-            backgroundColor: ['#4f46e5', '#10b981'],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
+    cases.forEach((caseItem) => {
+      caseItem.inquiries.forEach((inquiry) => {
+        dbSuppliers += inquiry.properties_identified; // Adjust based on your data
+        gmSuppliers += inquiry.properties_identified; // Adjust accordingly
+      });
     });
 
-    // Cleanup function to destroy the chart on component unmount
-    return () => {
-      if (supplierChartRef.current) {
-        supplierChartRef.current.destroy();
-      }
-    };
-  }, [databaseSuppliers, googleMapsSuppliers]);
+    setDatabaseSuppliers(dbSuppliers);
+    setGoogleMapsSuppliers(gmSuppliers);
+
+    // Update or create chart
+    if (supplierChartRef.current) {
+      supplierChartRef.current.data.datasets[0].data = [dbSuppliers, gmSuppliers];
+      supplierChartRef.current.update();
+    } else {
+      supplierChartRef.current = new Chart(supplierCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Database Properties', 'Google Maps Properties'],
+          datasets: [
+            {
+              data: [dbSuppliers, gmSuppliers],
+              backgroundColor: ['#4f46e5', '#10b981'],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+      });
+    }
+  };
 
   return (
     <div className="card bg-white rounded-lg shadow-md p-6 transition duration-300 hover:shadow-lg flex-1">

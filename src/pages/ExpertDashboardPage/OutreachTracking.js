@@ -1,46 +1,58 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const OutreachTracking = ({ emailsSent, suppliersCalled }) => {
+const OutreachTracking = ({ cases }) => {
+  const [emailsSent, setEmailsSent] = useState(0);
+  const [suppliersCalled, setSuppliersCalled] = useState(0);
   const outreachChartRef = useRef(null);
 
   useEffect(() => {
+    updateOutreachChart();
+  }, [cases]);
+
+  const updateOutreachChart = () => {
     const outreachCtx = document.getElementById('outreach-chart').getContext('2d');
+    let totalEmailsSent = 0;
+    let totalSuppliersCalled = 0;
 
-    // Destroy the previous chart instance if it exists
-    if (outreachChartRef.current) {
-      outreachChartRef.current.destroy();
-    }
-
-    outreachChartRef.current = new Chart(outreachCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Emails Sent', 'Property Owners Called'],
-        datasets: [
-          {
-            data: [emailsSent, suppliersCalled],
-            backgroundColor: ['#4f46e5', '#10b981'],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
+    cases.forEach((caseItem) => {
+      caseItem.inquiries.forEach((inquiry) => {
+        totalEmailsSent += inquiry.emails_sent;
+        totalSuppliersCalled += inquiry.suppliers_called;
+      });
     });
 
-    // Cleanup function to destroy the chart on component unmount
-    return () => {
-      if (outreachChartRef.current) {
-        outreachChartRef.current.destroy();
-      }
-    };
-  }, [emailsSent, suppliersCalled]);
+    setEmailsSent(totalEmailsSent);
+    setSuppliersCalled(totalSuppliersCalled);
+
+    // Update or create chart
+    if (outreachChartRef.current) {
+      outreachChartRef.current.data.datasets[0].data = [totalEmailsSent, totalSuppliersCalled];
+      outreachChartRef.current.update();
+    } else {
+      outreachChartRef.current = new Chart(outreachCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Emails Sent', 'Property Owners Called'],
+          datasets: [
+            {
+              data: [totalEmailsSent, totalSuppliersCalled],
+              backgroundColor: ['#4f46e5', '#10b981'],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+  };
 
   return (
     <div className="card bg-white rounded-lg shadow-md p-6 transition duration-300 hover:shadow-lg flex-1">

@@ -1,59 +1,57 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const AIProgress = ({ aiProgress, cases }) => {
+const AIProgress = ({ cases }) => {
+  const [aiProgress, setAiProgress] = useState(0);
   const aiProgressChartRef = useRef(null);
 
   useEffect(() => {
-    const aiProgressCtx = document.getElementById('ai-progress-chart').getContext('2d');
-
-    // Destroy the previous chart instance if it exists
-    if (aiProgressChartRef.current) {
-      aiProgressChartRef.current.destroy();
-    }
-
-    aiProgressChartRef.current = new Chart(aiProgressCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: 'AI Progress',
-            data: [],
-            borderColor: '#4f46e5',
-            fill: false,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    });
-
     updateAIProgressChart();
-
-    // Cleanup function to destroy the chart on component unmount
-    return () => {
-      if (aiProgressChartRef.current) {
-        aiProgressChartRef.current.destroy();
-      }
-    };
   }, [cases]);
 
   const updateAIProgressChart = () => {
+    const aiProgressCtx = document.getElementById('ai-progress-chart').getContext('2d');
     const aiProgressData = [];
     const labels = [];
+
     cases.forEach((caseItem) => {
       caseItem.inquiries.forEach((inquiry) => {
         labels.push(new Date(inquiry.time).toLocaleTimeString());
         aiProgressData.push(inquiry.ai_progress);
       });
     });
+
+    // Calculate average AI progress
+    const totalAiProgress = aiProgressData.reduce((a, b) => a + b, 0);
+    const averageAiProgress = aiProgressData.length
+      ? totalAiProgress / aiProgressData.length
+      : 0;
+    setAiProgress(averageAiProgress);
+
+    // Update or create chart
     if (aiProgressChartRef.current) {
       aiProgressChartRef.current.data.labels = labels;
       aiProgressChartRef.current.data.datasets[0].data = aiProgressData;
       aiProgressChartRef.current.update();
+    } else {
+      aiProgressChartRef.current = new Chart(aiProgressCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'AI Progress',
+              data: aiProgressData,
+              borderColor: '#4f46e5',
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+      });
     }
   };
 
