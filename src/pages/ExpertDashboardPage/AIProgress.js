@@ -1,21 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Chart from 'chart.js/auto';
 
-const AIDisplay = ({ cases }) => {
+const AIProgress = ({ aiProgress, cases }) => {
   const aiProgressChartRef = useRef(null);
-  const [aiProgress, setAiProgress] = useState(0);
 
   useEffect(() => {
-    // Initialize or update the chart when cases change
-    if (aiProgressChartRef.current) {
-      aiProgressChartRef.current.destroy(); // Destroy the existing chart before re-creating it
-    }
-    initializeAIProgressChart();
-    updateAIProgressChart();
-  }, [cases]);
-
-  const initializeAIProgressChart = () => {
     const aiProgressCtx = document.getElementById('ai-progress-chart').getContext('2d');
+
+    // Destroy the previous chart instance if it exists
+    if (aiProgressChartRef.current) {
+      aiProgressChartRef.current.destroy();
+    }
+
     aiProgressChartRef.current = new Chart(aiProgressCtx, {
       type: 'line',
       data: {
@@ -34,7 +30,16 @@ const AIDisplay = ({ cases }) => {
         maintainAspectRatio: false,
       },
     });
-  };
+
+    updateAIProgressChart();
+
+    // Cleanup function to destroy the chart on component unmount
+    return () => {
+      if (aiProgressChartRef.current) {
+        aiProgressChartRef.current.destroy();
+      }
+    };
+  }, [cases]);
 
   const updateAIProgressChart = () => {
     const aiProgressData = [];
@@ -45,19 +50,11 @@ const AIDisplay = ({ cases }) => {
         aiProgressData.push(inquiry.ai_progress);
       });
     });
-
     if (aiProgressChartRef.current) {
       aiProgressChartRef.current.data.labels = labels;
       aiProgressChartRef.current.data.datasets[0].data = aiProgressData;
       aiProgressChartRef.current.update();
     }
-
-    // Update AI Progress Bar
-    const totalAiProgress = aiProgressData.reduce((a, b) => a + b, 0);
-    const averageAiProgress = aiProgressData.length
-      ? totalAiProgress / aiProgressData.length
-      : 0;
-    setAiProgress(averageAiProgress);
   };
 
   return (
@@ -77,4 +74,4 @@ const AIDisplay = ({ cases }) => {
   );
 };
 
-export default AIDisplay;
+export default AIProgress;
