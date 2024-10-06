@@ -1,29 +1,17 @@
-// PropertyInformationCard.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const PropertyInformationCard = ({
-  databaseSuppliers,
-  googleMapsSuppliers,
-  resetSuppliers,
-}) => {
+const SupplierInfoDisplay = ({ cases }) => {
   const supplierChartRef = useRef(null);
+  const [databaseSuppliers, setDatabaseSuppliers] = useState(0);
+  const [googleMapsSuppliers, setGoogleMapsSuppliers] = useState(0);
 
   useEffect(() => {
-    initializeChart();
-  }, []);
+    initializeSupplierChart();
+    updateSupplierChart();
+  }, [cases]);
 
-  useEffect(() => {
-    if (supplierChartRef.current) {
-      supplierChartRef.current.data.datasets[0].data = [
-        databaseSuppliers,
-        googleMapsSuppliers,
-      ];
-      supplierChartRef.current.update();
-    }
-  }, [databaseSuppliers, googleMapsSuppliers]);
-
-  const initializeChart = () => {
+  const initializeSupplierChart = () => {
     const supplierCtx = document.getElementById('supplier-chart').getContext('2d');
     supplierChartRef.current = new Chart(supplierCtx, {
       type: 'pie',
@@ -31,7 +19,7 @@ const PropertyInformationCard = ({
         labels: ['Database Properties', 'Google Maps Properties'],
         datasets: [
           {
-            data: [databaseSuppliers, googleMapsSuppliers],
+            data: [0, 0],
             backgroundColor: ['#4f46e5', '#10b981'],
           },
         ],
@@ -41,6 +29,26 @@ const PropertyInformationCard = ({
         maintainAspectRatio: false,
       },
     });
+  };
+
+  const updateSupplierChart = () => {
+    let dbSuppliers = 0;
+    let gmSuppliers = 0;
+
+    cases.forEach((caseItem) => {
+      caseItem.inquiries.forEach((inquiry) => {
+        dbSuppliers += inquiry.properties_identified;
+        gmSuppliers += inquiry.properties_identified;
+      });
+    });
+
+    setDatabaseSuppliers(dbSuppliers);
+    setGoogleMapsSuppliers(gmSuppliers);
+
+    if (supplierChartRef.current) {
+      supplierChartRef.current.data.datasets[0].data = [dbSuppliers, gmSuppliers];
+      supplierChartRef.current.update();
+    }
   };
 
   return (
@@ -57,16 +65,8 @@ const PropertyInformationCard = ({
       <div className="chart-container h-52">
         <canvas id="supplier-chart"></canvas>
       </div>
-      <div className="utility-buttons flex justify-between mt-4">
-        <button
-          className="utility-button bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500"
-          onClick={resetSuppliers}
-        >
-          Reset Properties
-        </button>
-      </div>
     </div>
   );
 };
 
-export default PropertyInformationCard;
+export default SupplierInfoDisplay;

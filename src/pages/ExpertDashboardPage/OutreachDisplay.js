@@ -1,22 +1,17 @@
-// OutreachTrackingCard.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const OutreachTrackingCard = ({ emailsSent, suppliersCalled, resetOutreach }) => {
+const OutreachDisplay = ({ cases }) => {
   const outreachChartRef = useRef(null);
+  const [emailsSent, setEmailsSent] = useState(0);
+  const [suppliersCalled, setSuppliersCalled] = useState(0);
 
   useEffect(() => {
-    initializeChart();
-  }, []);
+    initializeOutreachChart();
+    updateOutreachChart();
+  }, [cases]);
 
-  useEffect(() => {
-    if (outreachChartRef.current) {
-      outreachChartRef.current.data.datasets[0].data = [emailsSent, suppliersCalled];
-      outreachChartRef.current.update();
-    }
-  }, [emailsSent, suppliersCalled]);
-
-  const initializeChart = () => {
+  const initializeOutreachChart = () => {
     const outreachCtx = document.getElementById('outreach-chart').getContext('2d');
     outreachChartRef.current = new Chart(outreachCtx, {
       type: 'bar',
@@ -24,7 +19,7 @@ const OutreachTrackingCard = ({ emailsSent, suppliersCalled, resetOutreach }) =>
         labels: ['Emails Sent', 'Property Owners Called'],
         datasets: [
           {
-            data: [emailsSent, suppliersCalled],
+            data: [0, 0],
             backgroundColor: ['#4f46e5', '#10b981'],
           },
         ],
@@ -41,18 +36,38 @@ const OutreachTrackingCard = ({ emailsSent, suppliersCalled, resetOutreach }) =>
     });
   };
 
+  const updateOutreachChart = () => {
+    let totalEmailsSent = 0;
+    let totalSuppliersCalled = 0;
+
+    cases.forEach((caseItem) => {
+      caseItem.inquiries.forEach((inquiry) => {
+        totalEmailsSent += inquiry.emails_sent;
+        totalSuppliersCalled += inquiry.suppliers_called;
+      });
+    });
+
+    setEmailsSent(totalEmailsSent);
+    setSuppliersCalled(totalSuppliersCalled);
+
+    if (outreachChartRef.current) {
+      outreachChartRef.current.data.datasets[0].data = [totalEmailsSent, totalSuppliersCalled];
+      outreachChartRef.current.update();
+    }
+  };
+
   return (
     <div className="card bg-white rounded-lg shadow-md p-6 transition duration-300 hover:shadow-lg flex-1">
       <h2 className="text-xl font-semibold text-indigo-600 mb-4">Outreach Tracking</h2>
       <div className="outreach-stats flex justify-between mb-4">
         <div>
-          <div className="stat-value text-3xl font-semibold text-indigo-600">
+          <div id="emails-sent" className="stat-value text-3xl font-semibold text-indigo-600">
             {emailsSent}
           </div>
           <div className="stat-label text-gray-500">Emails Sent</div>
         </div>
         <div>
-          <div className="stat-value text-3xl font-semibold text-indigo-600">
+          <div id="suppliers-called" className="stat-value text-3xl font-semibold text-indigo-600">
             {suppliersCalled}
           </div>
           <div className="stat-label text-gray-500">Property Owners Called</div>
@@ -61,16 +76,8 @@ const OutreachTrackingCard = ({ emailsSent, suppliersCalled, resetOutreach }) =>
       <div className="chart-container h-52">
         <canvas id="outreach-chart"></canvas>
       </div>
-      <div className="utility-buttons flex justify-between mt-4">
-        <button
-          className="utility-button bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500"
-          onClick={resetOutreach}
-        >
-          Reset Outreach
-        </button>
-      </div>
     </div>
   );
 };
 
-export default OutreachTrackingCard;
+export default OutreachDisplay;
