@@ -22,7 +22,7 @@ const Dashboard = () => {
 
 
   const fetchCases = () => {
-    fetch('http://localhost:5000/cases/')
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/cases/`)
       .then((response) => response.json())
       .then((data) => {
         setCases(data);
