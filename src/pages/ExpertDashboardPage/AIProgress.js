@@ -1,23 +1,39 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const AIProgress = ({ cases }) => {
+const AIProgress = () => {
   const [aiProgress, setAiProgress] = useState(0);
+  const [totalInquiries, setTotalInquiries] = useState(0);
+  const [totalProperties, setTotalProperties] = useState(0);
   const aiProgressChartRef = useRef(null);
 
   useEffect(() => {
-    updateAIProgressChart();
-  }, [cases]);
+    const fetchAIProgressData = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/ai-progress-data`);
+        const data = await response.json();
+        updateAIProgressChart(data);
+      } catch (error) {
+        console.error('Error fetching AI progress data:', error);
+      }
+    };
 
-  const updateAIProgressChart = () => {
+    fetchAIProgressData();
+  }, []);
+
+  const updateAIProgressChart = (data) => {
     const aiProgressCtx = document.getElementById('ai-progress-chart').getContext('2d');
     const aiProgressData = [];
     const labels = [];
+    let inquiriesCount = 0;
+    let propertiesCount = 0;
 
-    cases.forEach((caseItem) => {
+    data.forEach((caseItem) => {
       caseItem.inquiries.forEach((inquiry) => {
         labels.push(new Date(inquiry.time).toLocaleTimeString());
         aiProgressData.push(inquiry.ai_progress);
+        inquiriesCount++;
+        propertiesCount += inquiry.properties_identified;
       });
     });
 
@@ -27,6 +43,8 @@ const AIProgress = ({ cases }) => {
       ? totalAiProgress / aiProgressData.length
       : 0;
     setAiProgress(averageAiProgress);
+    setTotalInquiries(inquiriesCount);
+    setTotalProperties(propertiesCount);
 
     // Update or create chart
     if (aiProgressChartRef.current) {
@@ -65,6 +83,8 @@ const AIProgress = ({ cases }) => {
           style={{ width: `${aiProgress}%` }}
         ></div>
       </div>
+      <p>Total Inquiries: {totalInquiries}</p>
+      <p>Total Properties Identified: {totalProperties}</p>
       <div className="chart-container h-52">
         <canvas id="ai-progress-chart"></canvas>
       </div>

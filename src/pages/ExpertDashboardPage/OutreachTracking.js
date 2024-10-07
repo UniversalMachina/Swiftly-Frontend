@@ -1,29 +1,37 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 
-const OutreachTracking = ({ cases }) => {
-  const [emailsSent, setEmailsSent] = useState(0);
-  const [suppliersCalled, setSuppliersCalled] = useState(0);
+const OutreachTracking = () => {
+  const [outreachData, setOutreachData] = useState({
+    totalEmailsSent: 0,
+    totalSuppliersCalled: 0,
+    totalPropertiesIdentified: 0,
+    avgAiProgress: 0,
+  });
   const outreachChartRef = useRef(null);
 
   useEffect(() => {
-    updateOutreachChart();
-  }, [cases]);
+    fetchOutreachSummary();
+  }, []);
 
-  const updateOutreachChart = () => {
-    const outreachCtx = document.getElementById('outreach-chart').getContext('2d');
-    let totalEmailsSent = 0;
-    let totalSuppliersCalled = 0;
-
-    cases.forEach((caseItem) => {
-      caseItem.inquiries.forEach((inquiry) => {
-        totalEmailsSent += inquiry.emails_sent;
-        totalSuppliersCalled += inquiry.suppliers_called;
+  const fetchOutreachSummary = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/outreach-summary`);
+      const data = await response.json();
+      setOutreachData({
+        totalEmailsSent: data.total_emails_sent,
+        totalSuppliersCalled: data.total_suppliers_called,
+        totalPropertiesIdentified: data.total_properties_identified,
+        avgAiProgress: data.avg_ai_progress,
       });
-    });
+      updateOutreachChart(data.total_emails_sent, data.total_suppliers_called);
+    } catch (error) {
+      console.error('Failed to fetch outreach summary', error);
+    }
+  };
 
-    setEmailsSent(totalEmailsSent);
-    setSuppliersCalled(totalSuppliersCalled);
+  const updateOutreachChart = (totalEmailsSent, totalSuppliersCalled) => {
+    const outreachCtx = document.getElementById('outreach-chart').getContext('2d');
 
     // Update or create chart
     if (outreachChartRef.current) {
@@ -33,7 +41,7 @@ const OutreachTracking = ({ cases }) => {
       outreachChartRef.current = new Chart(outreachCtx, {
         type: 'bar',
         data: {
-          labels: ['Emails Sent', 'Property Owners Called'],
+          labels: ['Emails Sent', 'Suppliers Called'],
           datasets: [
             {
               data: [totalEmailsSent, totalSuppliersCalled],
@@ -59,19 +67,28 @@ const OutreachTracking = ({ cases }) => {
       <h2 className="text-xl font-semibold text-indigo-600 mb-4">Outreach Tracking</h2>
       <div className="outreach-stats flex justify-between mb-4">
         <div>
-          <div id="emails-sent" className="stat-value text-3xl font-semibold text-indigo-600">
-            {emailsSent}
+          <div className="stat-value text-3xl font-semibold text-indigo-600">
+            {outreachData.totalEmailsSent}
           </div>
           <div className="stat-label text-gray-500">Emails Sent</div>
         </div>
         <div>
-          <div
-            id="suppliers-called"
-            className="stat-value text-3xl font-semibold text-indigo-600"
-          >
-            {suppliersCalled}
+          <div className="stat-value text-3xl font-semibold text-indigo-600">
+            {outreachData.totalSuppliersCalled}
           </div>
-          <div className="stat-label text-gray-500">Property Owners Called</div>
+          <div className="stat-label text-gray-500">Suppliers Called</div>
+        </div>
+        <div>
+          <div className="stat-value text-3xl font-semibold text-indigo-600">
+            {outreachData.totalPropertiesIdentified}
+          </div>
+          <div className="stat-label text-gray-500">Properties Identified</div>
+        </div>
+        <div>
+          <div className="stat-value text-3xl font-semibold text-indigo-600">
+            {outreachData.avgAiProgress.toFixed(2)}%
+          </div>
+          <div className="stat-label text-gray-500">Average AI Progress</div>
         </div>
       </div>
       <div className="chart-container h-52">
